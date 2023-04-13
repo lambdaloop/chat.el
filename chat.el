@@ -127,12 +127,21 @@ If no key is found, error."
 ;;; Asynchronous primitives for streaming data from ChatGPT's API
 
 
-(defun chat--async-raw (messages callback finalize)
+
+(defun remove-bad-messages (messages)
+  "Filters out items in MESSAGES with no content.
+LST is a list of items, where each item is a list of (key . value) pairs.
+Returns a new list of items where each item has a non-nil 'content' key.
+Makes it still work when user sends nothing in chat."
+  (seq-filter (lambda (item) (not (null (cdr (assoc "content" item))))) messages))
+
+(defun chat--async-raw (raw-messages callback finalize)
   "Query ChatGPT with MESSAGES.
 CALLBACK is called in the receiving buffer with POINT at the
 beginning of the new data.
 FINALIZE is called after all data has been processed."
-  (let* ((url-request-method "POST")
+  (let* ((messages (remove-bad-messages raw-messages))
+         (url-request-method "POST")
          (url-request-extra-headers `(("Content-Type" . "application/json")
                                       ("Authorization" . ,(concat "Bearer " (chat-get-api-key)))))
          (url-request-data (encode-coding-string
