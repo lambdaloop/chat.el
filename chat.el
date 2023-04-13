@@ -130,7 +130,7 @@ If no key is found, error."
 
 (defun remove-bad-messages (messages)
   "Filters out items in MESSAGES with no content.
-LST is a list of items, where each item is a list of (key . value) pairs.
+MESSAGES is a list of items, where each item is a list of (key . value) pairs.
 Returns a new list of items where each item has a non-nil 'content' key.
 Makes it still work when user sends nothing in chat."
   (seq-filter (lambda (item) (not (null (cdr (assoc "content" item))))) messages))
